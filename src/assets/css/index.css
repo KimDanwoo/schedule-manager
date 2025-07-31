@@ -1,0 +1,25 @@
+@import 'tailwindcss';
+
+.fullcalendar-container .fc {
+  font-family: inherit;
+}
+.fullcalendar-container .fc-event {
+  border-radius: 6px;
+  padding: 2px 6px;
+  margin: 1px;
+  font-size: 12px;
+  font-weight: 500;
+  border: none;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+.fullcalendar-container .fc-button {
+  background-color: #3b82f6;
+  border-color: #3b82f6;
+  border-radius: 6px;
+  font-weight: 500;
+  padding: 6px 12px;
+}
+.fullcalendar-container .fc-button:hover {
+  background-color: #2563eb;
+  border-color: #2563eb;
+}
