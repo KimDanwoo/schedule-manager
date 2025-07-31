@@ -10,6 +10,7 @@ import type {
 import { Badge, Button, Input, Label, Select, Textarea } from '@components/atoms';
 import { Card } from '@components/molecules';
 import { CATEGORIES, CATEGORY_COLORS, PRIORITIES, STATUSES } from '@constants/index';
+import { useTaskStore } from '@stores/index';
 import { fcDateToLocal, formatDateToLocal, formatTimeToLocal, isSameDate } from '@utils/date';
 import {
   AlertCircle,
@@ -40,61 +41,23 @@ import {
 } from 'recharts';
 
 export const ScheduleManager: FC = () => {
-  const [tasks, setTasks] = useState<Task[]>([
-    {
-      id: 1,
-      title: '프로젝트 기획 회의',
-      description: '새로운 웹 프로젝트 기획안 논의',
-      category: '업무',
-      priority: '높음',
-      status: '진행중',
-      startDate: '2025-08-01',
-      endDate: '2025-08-01',
-      startTime: '09:00',
-      endTime: '11:00',
-      estimatedHours: 2,
-      actualHours: 1.5,
-    },
-    {
-      id: 2,
-      title: 'React 스터디',
-      description: 'React 18 새로운 기능 학습',
-      category: '학습',
-      priority: '중간',
-      status: '완료',
-      startDate: '2025-07-30',
-      endDate: '2025-07-30',
-      startTime: '14:00',
-      endTime: '17:00',
-      estimatedHours: 3,
-      actualHours: 3.5,
-    },
-    {
-      id: 3,
-      title: '여름 휴가',
-      description: '제주도 여행',
-      category: '개인',
-      priority: '중간',
-      status: '진행중',
-      startDate: '2025-08-05',
-      endDate: '2025-08-10',
-      startTime: '',
-      endTime: '',
-      estimatedHours: 0,
-      actualHours: 0,
-    },
-  ]);
+  const tasks = useTaskStore((state) => state.tasks);
+  const setTasks = useTaskStore((state) => state.setTasks);
+  const showAddTask = useTaskStore((state) => state.showAddTask);
+  const setShowAddTask = useTaskStore((state) => state.setShowAddTask);
+  const showDayModal = useTaskStore((state) => state.showDayModal);
+  const setShowDayModal = useTaskStore((state) => state.setShowDayModal);
+  const selectedDayTasks = useTaskStore((state) => state.selectedDayTasks);
+  const setSelectedDayTasks = useTaskStore((state) => state.setSelectedDayTasks);
+  const editingTask = useTaskStore((state) => state.editingTask);
+  const setEditingTask = useTaskStore((state) => state.setEditingTask);
 
   const [currentView, setCurrentView] = useState<'list' | 'calendar' | 'analytics'>('list');
   const [timeFilter, setTimeFilter] = useState<'all' | 'day' | 'month' | 'year'>('all');
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [showAddTask, setShowAddTask] = useState<boolean>(false);
-  const [showDayModal, setShowDayModal] = useState<boolean>(false);
-  const [selectedDayTasks, setSelectedDayTasks] = useState<Task[]>([]);
   const [selectedDayDate, setSelectedDayDate] = useState<string>('');
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [filterCategory, setFilterCategory] = useState<string>('전체');
-  const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [calendarLoaded, setCalendarLoaded] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -480,6 +443,8 @@ export const ScheduleManager: FC = () => {
     try {
       calendarInstance.current.removeAllEvents();
 
+      if (!Array.isArray(tasks)) return;
+
       const events = tasks
         .map((task) => {
           try {
@@ -574,7 +539,10 @@ export const ScheduleManager: FC = () => {
   const filteredTasks = useMemo((): Task[] => {
     try {
       const timeFiltered = getFilteredTasksByTime(tasks);
-      return timeFiltered.filter((task) => {
+
+      if (!Array.isArray(timeFiltered)) return [];
+
+      return timeFiltered?.filter((task) => {
         const matchesSearch =
           !searchTerm.trim() ||
           task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -794,6 +762,17 @@ export const ScheduleManager: FC = () => {
   // 분석 데이터 생성
   const analyticsData = useMemo((): AnalyticsData => {
     const filteredByTime = getFilteredTasksByTime(tasks);
+
+    if (!Array.isArray(filteredByTime))
+      return {
+        total: 0,
+        completed: 0,
+        inProgress: 0,
+        pending: 0,
+        categoryStats: [],
+        statusStats: [],
+        priorityStats: [],
+      };
 
     // 카테고리별 통계
     const categoryStats: CategoryStat[] = CATEGORIES.slice(1).map((category) => {
