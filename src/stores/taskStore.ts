@@ -5,6 +5,7 @@ import { create } from 'zustand';
 
 interface TaskModalState {
   tasks: Task[];
+  newTask: Task;
   showAddTask: boolean;
   showDayModal: boolean;
   selectedDayTasks: Task[];
@@ -14,6 +15,7 @@ interface TaskModalState {
 interface TaskActionState {
   addTask: (task: Task) => void;
   setTasks: (tasks: Task[]) => void;
+  setNewTask: (task: Task) => void;
   setShowAddTask: (show: boolean) => void;
   setShowDayModal: (show: boolean) => void;
   setSelectedDayTasks: (tasks: Task[]) => void;
@@ -39,15 +41,32 @@ const initialTasks: Task[] = [
   },
 ];
 
+const initialNewTask: Task = {
+  id: 0,
+  title: '',
+  description: '',
+  category: '업무',
+  priority: '중간',
+  status: '대기',
+  startDate: '',
+  endDate: '',
+  startTime: '09:00',
+  endTime: '10:00',
+  estimatedHours: 1,
+  actualHours: 0,
+};
+
 export const useTaskStore = create<TaskStore>((set) => ({
   tasks: initialTasks,
+  newTask: initialNewTask,
   showAddTask: false,
   showDayModal: false,
   selectedDayTasks: [],
   editingTask: null,
 
   addTask: (task) => set((state) => ({ tasks: [...state.tasks, task] })),
-  setTasks: (tasks) => set({ tasks }),
+  setTasks: (tasks: Task[]) => set({ tasks }),
+  setNewTask: (task) => set({ newTask: task }),
   setShowAddTask: (show) => set({ showAddTask: show }),
   setShowDayModal: (show) => set({ showDayModal: show }),
   setSelectedDayTasks: (tasks) => set({ selectedDayTasks: tasks }),

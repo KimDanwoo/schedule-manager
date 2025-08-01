@@ -49,7 +49,3 @@ export interface CategoryColors {
   [key: string]: string;
 }
 
-export interface ErrorMessageProps {
-  message: string | null;
-  onDismiss?: () => void;
-}
