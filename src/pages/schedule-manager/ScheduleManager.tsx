@@ -30,12 +30,9 @@ export const ScheduleManager: FC = () => {
   const filteredTasks = useMemo((): Task[] => {
     try {
       const timeFiltered = getFilteredTasksByTime({ tasks });
-      console.log('tasks', tasks);
-      console.log('timeFiltered', timeFiltered);
-
       if (!Array.isArray(timeFiltered)) return [];
 
-      return timeFiltered?.filter((task) => {
+      const filteredTasks = timeFiltered?.filter((task) => {
         const matchesSearch =
           !searchTerm.trim() ||
           task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -43,6 +40,8 @@ export const ScheduleManager: FC = () => {
         const matchesCategory = filterCategory === '전체' || task.category === filterCategory;
         return matchesSearch && matchesCategory;
       });
+
+      return filteredTasks;
     } catch (error) {
       console.error('태스크 필터링 오류:', error);
       return [];
@@ -70,7 +69,6 @@ export const ScheduleManager: FC = () => {
     try {
       if (window.confirm('정말로 이 일정을 삭제하시겠습니까?')) {
         const updateTasks = tasks.filter((task) => task.id !== taskId);
-        console.log(updateTasks);
         setTasks(updateTasks);
       }
     } catch (error) {
@@ -80,21 +78,24 @@ export const ScheduleManager: FC = () => {
   }, []);
 
   // 태스크 상태 변경
-  const toggleTaskStatus = useCallback((taskId: number): void => {
-    try {
-      const updateTasks = tasks.map((task) => {
-        if (task.id === taskId) {
-          const newStatus = task.status === '완료' ? '진행중' : '완료';
-          return { ...task, status: newStatus };
-        }
-        return task;
-      });
-      setTasks(updateTasks as Task[]);
-    } catch (error) {
-      console.error('상태 변경 오류:', error);
-      setError('일정 상태를 변경할 수 없습니다.');
-    }
-  }, []);
+  const toggleTaskStatus = useCallback(
+    (taskId: number): void => {
+      try {
+        const updateTasks = tasks.map((task) => {
+          if (task.id === taskId) {
+            const newStatus = task.status === '완료' ? '진행중' : '완료';
+            return { ...task, status: newStatus };
+          }
+          return task;
+        });
+        setTasks(updateTasks as Task[]);
+      } catch (error) {
+        console.error('상태 변경 오류:', error);
+        setError('일정 상태를 변경할 수 없습니다.');
+      }
+    },
+    [tasks],
+  );
 
   // 기타 유틸리티 함수들
   const getPriorityColor = useCallback((priority: string): string => {
@@ -190,6 +191,7 @@ export const ScheduleManager: FC = () => {
                     >
                       <CheckCircle className="h-5 w-5" />
                     </Button>
+
                     <h3
                       className={`text-lg font-semibold ${
                         task.status === '완료' ? 'line-through text-gray-500' : 'text-gray-800'
@@ -197,6 +199,7 @@ export const ScheduleManager: FC = () => {
                     >
                       {task.title}
                     </h3>
+
                     <Badge
                       className="text-xs"
                       style={{
@@ -208,7 +211,9 @@ export const ScheduleManager: FC = () => {
                       {task.category}
                     </Badge>
                   </div>
+
                   <p className="text-gray-600 mb-3">{task.description}</p>
+
                   <div className="flex flex-wrap gap-2 text-sm">
                     <Badge variant="outline" className={getPriorityColor(task.priority)}>
                       우선순위: {task.priority}
@@ -231,10 +236,12 @@ export const ScheduleManager: FC = () => {
                     </Badge>
                   </div>
                 </div>
+
                 <div className="flex gap-2">
                   <Button variant="ghost" size="icon" onClick={() => handleEditTask(task)}>
                     <Edit2 className="h-4 w-4" />
                   </Button>
+
                   <Button
                     variant="ghost"
                     size="icon"

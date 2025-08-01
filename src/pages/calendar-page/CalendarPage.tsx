@@ -275,7 +275,7 @@ export const CalendarPage = () => {
       }, 100);
       return () => clearTimeout(timer);
     }
-  }, []);
+  }, [tasks, updateCalendarEvents]);
 
   return (
     <Card>

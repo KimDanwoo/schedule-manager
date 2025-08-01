@@ -303,8 +303,6 @@ export const AppLayout: FC<HomeLayoutProps> = ({ children }) => {
     }
   }, []);
 
-  console.log(currentPage);
-
   return (
     <div className="min-h-screen bg-gray-50 p-4">
       <ErrorMessage message={error} onDismiss={() => setError('')} />
